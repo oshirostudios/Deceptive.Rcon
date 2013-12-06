@@ -1,0 +1,113 @@
+<?php
+require_once('modules/index.php');
+require_once('style/' . $CONFIG['style'] . '/header.inc.php');
+?>
+
+<section id="home" class="home">
+	<div class="content">
+		<h2>Commands</h2>
+		
+		<?php
+		require_once('style/' . $CONFIG['style'] . '/navigation.inc.php');
+		?>
+		
+		<script type="text/javascript">
+			var group = -1;
+			$(document).ready(function()
+			{
+				$('#group-select').change(function()
+				{
+					$('#commands').html('');
+					$('#commands').load('/?module=commands&action=list.ajax&group=' + $('#group-select').val(), function()
+					{
+						$('input:checkbox').change(function()
+						{ 
+							if ($(this).is(":checked"))
+							{
+								$.ajax({
+									url: '/index.php',
+									type: 'POST',
+									data: 
+									{ 
+										'module': 'commands', 
+										'action': 'update.ajax', 
+										'group': $('#group-select').val(), 
+										'target': $(this).attr('name'),
+										'value': '1'
+									}
+								});
+							} 
+							else 
+							{
+								$.ajax({
+									url: '/index.php',
+									type: 'POST',
+									data: 
+									{ 
+										'module': 'commands', 
+										'action': 'update.ajax', 
+										'group': $('#group-select').val(), 
+										'target': $(this).attr('name'),
+										'value': '0'
+									}
+								});
+							}
+ 						}); 
+ 					});
+				});
+			});
+		</script>
+		
+		<div class="view">
+		<div class="pages">
+		
+		<?php
+		$server_id = 0;
+		
+		if (isset($_REQUEST['server-id']))
+			$server_id = $_REQUEST['server-id'];
+		
+		// server status... select servers from accessible server ID's
+		$user = $_SESSION['{$adb->prefix}user'];
+		$user->ShowServerSelect(MODE_COMMANDS, $server_id);
+		
+		if ($_SESSION['server-id'] != 0 && $user->HasAccess($_SESSION['server-id'], MODE_OVERVIEW))
+		{
+		?>
+		<div>
+		<br/>
+		<div id="overview">
+		<select id="group-select" style="width: 200px; padding: 5px;" size="6">
+		<?php
+		$query = "SELECT * FROM {$adb->prefix}groups ORDER BY group_id";
+		$result = $adb->query($query, false);
+		
+		if (!empty($result) && $adb->num_rows($result) > 0)
+		{
+			for ($count = 0; $count < $adb->num_rows($result); $count++)
+			{
+				$group_id = $adb->query_result($result, $count, 'group_id');
+				$group_name = $adb->query_result($result, $count, 'group_name');
+				
+				echo "<option value=\"{$group_id}\">{$group_name}</option>\n";
+			}
+		}
+		?>
+		</select>
+		</div>
+		<div id="status">
+		<div id="commands" class="commands"></div>
+		</div>
+		</div>
+		<?php
+		}
+		?>
+		
+		</div>
+		</div>
+	</div>
+</section>
+
+<?php
+require_once('style/' . $CONFIG['style'] . '/footer.inc.php');
+?>

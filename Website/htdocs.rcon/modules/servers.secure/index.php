@@ -1,0 +1,175 @@
+<?php
+require_once('modules/index.php');
+require_once('style/' . $CONFIG['style'] . '/header.inc.php');
+?>
+
+<section id="home" class="home">
+	<div class="content">
+		<h2>Servers</h2>
+		
+		<?php
+		require_once('style/' . $CONFIG['style'] . '/navigation.inc.php');
+		?>
+		
+		<div class="view">
+		<div class="pages">
+		
+		<?php
+		require_once('style/' . $CONFIG['style'] . '/message.inc.php');
+		
+		// server status... select servers from accessible server ID's
+		$user = $_SESSION['{$adb->prefix}user'];
+		$user->ShowServerSelect(MODE_SERVERS, true);
+		
+		if ($_SESSION['server-id'] != 0 && $user->HasAccess($_SESSION['server-id'], MODE_SERVERS))
+		{
+			$server = $user->Server($_SESSION['server-id']);
+			
+			if ($server !== false)
+			{
+				$edit_available = false;
+				
+				if ($user->ID() == $server->Creator())
+					$edit_available = true;
+			
+				echo "<table style=\"margin-left: 79px; margin-top: 20px; border-spacing: 5px; border-collapse: separate;\">\n";
+				echo "<tbody>\n";
+				
+				if ($edit_available)
+				{
+					echo "<form method=\"post\">\n";
+					echo "<input type=\"hidden\" name=\"module\" value=\"servers\">\n";
+					echo "<input type=\"hidden\" name=\"action\" value=\"update\">\n";
+					echo "<input type=\"hidden\" name=\"type\" value=\"modify\">\n";
+					//echo "<input type=\"hidden\" name=\"server\" value=\"{$_SESSION['server-id']}\">\n";
+				}
+				
+				echo "<tr>\n";
+				echo "<td colspan=\"4\">Server Name</td>\n";
+				echo "<td>Server IP</td>\n";
+				echo "<td>Port</td>\n";
+				echo "</tr>\n";
+				echo "<tr>\n";
+				echo "<td colspan=\"4\"><input style=\"color:#333; margin-bottom: 0px;\" type=\"text\" name=\"name\" value=\"{$server->Name()}\" size=\"55\" maxlength=\"45\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				echo "<td><input style=\"color:#333; margin-bottom: 0px;\" type=\"text\" name=\"ip\" value=\"{$server->IP()}\" size=\"20\" maxlength=\"15\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				echo "<td><input style=\"color:#333; margin-bottom: 0px;\" type=\"text\" name=\"port\" value=\"{$server->Port()}\" size=\"10\" maxlength=\"5\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				echo "</tr>\n";
+				echo "<tr><td colspan=\"6\">Server Log URL</td></tr>\n";
+				echo "<tr><td colspan=\"6\"><input style=\"color:#333; margin-bottom: 0px;\" type=\"text\" name=\"url\" value=\"{$server->LogURL()}\" size=\"105\" maxlength=\"255\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td></tr>\n";
+				echo "<tr><td colspan=\"6\">Server Description</td></tr>\n";
+				echo "<tr><td colspan=\"6\"><input style=\"color:#333; margin-bottom: 0px;\" type=\"text\" name=\"description\" value=\"{$server->Description()}\" size=\"105\" maxlength=\"255\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td></tr>\n";
+				echo "<tr>\n";
+				echo "<td>Ranked Server</td>\n";
+				echo "<td>Show Restrictions</td>\n";
+				echo "<td>Warnings</td>\n";
+				echo "<td>Max Ping</td>\n";
+				echo "<td>RCON Password</td>\n";
+				echo "<td>Activation</td>\n";
+				echo "</tr>\n";
+				echo "<tr>\n";
+				
+				if ($server->Ranked() == 1)
+					echo "<td width=\"99px\"><input style=\"color:#333; margin-bottom: 0px;\" type=\"checkbox\" name=\"ranked\" value=\"1\" checked size=\"55\" maxlength=\"45\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				else
+					echo "<td width=\"99px\"><input style=\"color:#333; margin-bottom: 0px;\" type=\"checkbox\" name=\"ranked\" value=\"1\" size=\"55\" maxlength=\"45\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				
+				if ($server->ShowRestrictions() == 1)
+					echo "<td><input style=\"color:#333; margin-bottom: 0px;\" type=\"checkbox\" name=\"show_restrictions\" value=\"1\" checked size=\"55\" maxlength=\"45\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				else
+					echo "<td><input style=\"color:#333; margin-bottom: 0px;\" type=\"checkbox\" name=\"show_restrictions\" value=\"1\" size=\"55\" maxlength=\"45\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				
+				echo "<td><input style=\"color:#333; margin-bottom: 0px;\" type=\"text\" name=\"warnings\" value=\"{$server->Warnings()}\" size=\"8\" maxlength=\"2\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				echo "<td><input style=\"color:#333; margin-bottom: 0px;\" type=\"text\" name=\"max_ping\" value=\"{$server->MaxPing()}\" size=\"8\" maxlength=\"3\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				echo "<td><input style=\"color:#333; margin-bottom: 0px;\" type=\"text\" name=\"rcon\" value=\"{$server->RconPassword()}\" size=\"20\" maxlength=\"12\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				echo "<td><input style=\"color:#333; margin-bottom: 0px;\" type=\"text\" name=\"activation\" value=\"{$server->Activation()}\" size=\"20\" maxlength=\"13\" disabled=\"disabled\"" . ($edit_available ? "" : "disabled=\"disabled\"") . " /></td>\n";
+				echo "</tr>\n";
+				echo "<tr>\n";
+				echo "<td colspan=\"6\">\n";
+				
+				if ($edit_available)
+				{
+					echo "<input style=\"float: right; margin-left: 10px;margin-top: 10px;\" type=\"submit\" value=\"  Update  \" />\n";
+					echo "</form>\n";
+				}
+				
+				echo "<form style=\"float: right;\" method=\"post\">\n";
+				echo "<input type=\"hidden\" name=\"module\" value=\"servers\">\n";
+				echo "<input type=\"hidden\" name=\"action\" value=\"update\">\n";
+				
+				if ($server->Running())
+				{
+					echo "<input type=\"hidden\" name=\"type\" value=\"stop\">\n";
+					echo "<input style=\"float: right; margin-top: 10px;\" type=\"submit\" value=\"  Stop  \" />\n";
+				}
+				else
+				{
+					echo "<input type=\"hidden\" name=\"type\" value=\"start\">\n";
+					echo "<input style=\"float: right; margin-top: 10px;\" type=\"submit\" value=\"  Start  \" />\n";
+				}
+				
+				echo "</form>\n";
+				
+				if ($edit_available)
+				{
+					echo "<form style=\"float: right;\" method=\"post\">\n";
+					echo "<input type=\"hidden\" name=\"module\" value=\"servers\">\n";
+					echo "<input type=\"hidden\" name=\"action\" value=\"update\">\n";
+					
+					echo "<input type=\"hidden\" name=\"type\" value=\"delete\">\n";
+					echo "<input style=\"float: right; margin-top: 10px; margin-right: 10px;\" type=\"submit\" value=\"  Delete  \" />\n";
+					
+					if (isset($_SESSION['servers_delete_confirm']) == $server->Activation())
+					{
+						echo "<input type=\"hidden\" name=\"activation\" value=\"{$server->Activation()}\">\n";
+						unset($_SESSION['servers_delete_confirm']);
+					}
+				
+					echo "</form>\n";
+				}
+				
+				if ($edit_available && $server->Owner() == -1)
+				{
+					echo "<span style=\"float: right; margin-top: 14px; margin-right: 10px;\">\n";
+					echo "<font color=\"green\">Use '<b>!claimserver {$server->Activation()}</b>' in game to claim server</font>\n";
+					echo "</span>\n";
+				}
+				
+				echo "</td>\n";
+				echo "</tr>\n";
+				echo "<tr>\n<td style=\"text-align: center\" colspan=\"6\">\n";
+				echo "Server Status Link: <a href=\"/?module=status&server-id={$_SESSION['server-id']}\">http://rcon.deceptivestudios.com/?module=status&server-id={$_SESSION['server-id']}</a><br />\n";
+				echo "Support Forum: <a href=\"http://forum.deceptivestudios.com/viewforum.php?f=2\">http://forum.deceptivestudios.com/viewforum.php?f=2</a>\n";
+				echo "</td>\n</tr>\n";
+				echo "</tbody>\n";
+				echo "</table>\n";
+			}
+		}
+		?>
+		<br />		
+		<table style="margin-left: 53px;">
+			<thead>
+				<tr>
+					<th>Create New Server</th>
+				</tr>
+			</thead>
+			<tbody>
+				<form method="post">
+					<input type="hidden" name="module" value="servers">
+					<input type="hidden" name="action" value="update">
+					<input type="hidden" name="type" value="create">
+					<tr>
+						<td width="630"><input type="text" name="name" size="100" maxlength="100" /></td>
+						<td valign="top"><input type="submit" value="  Create  " /></td>
+					</tr>
+				</form>
+			</tbody>
+		</table>
+		
+		</div>
+		</div>
+	</div>
+</section>
+
+<?php
+require_once('style/' . $CONFIG['style'] . '/footer.inc.php');
+?>
