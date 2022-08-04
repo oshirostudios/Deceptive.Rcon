@@ -8,12 +8,12 @@ require_once('style/' . $CONFIG['style'] . '/header.inc.php');
 
 <!-- Login System -->
 <h2>Login</h2>
-<span style="color: red;">WARNING: Service will be shutdown and made unavailable on the 5th of December, if you would like the code system, email me jonathan <at> deceptive studios dot com</span>
 
 <!-- Navigation -->
 <nav class="main">
 <ul>
 <li><a href="#login" class="selected">Login</a></li>
+<li><a href="#register">Register</a></li>
 </ul>
 </nav>
 
@@ -26,6 +26,61 @@ require_once('style/' . $CONFIG['style'] . '/header.inc.php');
 <table>
 <tr><td>Username:</td><td>Password:</td></tr>
 <tr><td><input type="user" name="UserName" size="30"></td><td><input type="password" name="Password" size="30"></td></tr>
+<tr>
+<td colspan="2">
+<input style="float: right; margin-top: 5px; margin-bottom: 5px;" type="submit" name="Login" value="Login" />
+<span style="float: right; margin-top: 10px; margin-right: 10px;"><?php
+if (isset($_REQUEST['message']))
+{
+	if (strpos($_REQUEST['message'], 'ERROR:') !== false)
+		echo "<font color=\"red\">{$_REQUEST['message']}</font>\n";
+	else
+		echo "<font color=\"green\">{$_REQUEST['message']}</font>\n";
+}
+?></span>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<br /><br />
+</td>
+</tr>
+</table>
+</form>
+
+</div>
+
+</div>
+</div>
+
+</div>
+</section>
+	
+<section id="register" class="register">
+<div class="content">
+
+<!-- Login System -->
+<h2>Register</h2>
+
+<!-- Navigation -->
+<nav class="main">
+<ul>
+<li><a href="#login">Login</a></li>
+<li><a href="#register" class="selected">Register</a></li>
+</ul>
+</nav>
+
+<div class="view">
+<div class="pages">
+
+<div class="page_center">
+
+<form method="post" action="/?module=login&action=register">
+<table>
+<tr><td>Username:</td><td>Password:</td></tr>
+<tr><td><input type="user" name="username" size="30"></td><td><input type="password" name="password" size="30"></td></tr>
+<tr><td>Email:</td><td>Confirm Password:</td></tr>
+<tr><td><input type="email" name="email" size="30"></td><td><input type="password" name="password-check" size="30"></td></tr>
 <tr>
 <td colspan="2">
 <input style="float: right; margin-top: 5px; margin-bottom: 5px;" type="submit" name="Login" value="Login" />
